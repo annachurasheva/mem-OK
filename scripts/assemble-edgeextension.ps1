@@ -22,7 +22,7 @@
 [CmdletBinding()]
 param(
     [string]$DonorsRoot = "C:\Projects\git-isolated-fixed\git-projects",
-    [string]$TargetRoot = "C:\Projects\git-isolated-fixed\git-projects\mem-OK"
+    [string]$TargetRoot = "C:\astro-projects\mem-OK"
 )
 
 $ErrorActionPreference = "Stop"

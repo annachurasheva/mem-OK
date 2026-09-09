@@ -1,6 +1,6 @@
 # ОТЧЁТ сборки каркаса мем-OK · TASK-0148
 
-Дата: 2026-08-29 10:52  ·  Цель: `C:\Projects\git-isolated-fixed\git-projects\mem-OK`
+Дата: 2026-08-29 10:52  ·  Цель: `C:\astro-projects\mem-OK`
 
 ## Создано (17)
 
@@ -34,7 +34,7 @@
 
 ## Проверки
 
-- [REGULATIONS] найден у донора 'm3': C:\Projects\git-isolated-fixed\git-projects\m3\docs\REGULATIONS.md · координатная строка v3: ЕСТЬ
+- [REGULATIONS] найден у донора 'm3': C:\astro-projects\m3\docs\REGULATIONS.md · координатная строка v3: ЕСТЬ
 
 ## НЕ включено (по заданию)
 

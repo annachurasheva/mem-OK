@@ -1,7 +1,7 @@
 # ОТЧЁТ TASK-0154 — EdgeExtension от донора (provenance) + адаптация ok.ru
 
 Дата: 2026-08-29 15:56
-Доноры: `C:\Projects\git-isolated-fixed\git-projects` · Цель: `C:\Projects\git-isolated-fixed\git-projects\mem-OK`
+Доноры: `C:\Projects\git-isolated-fixed\git-projects` · Цель: `C:\astro-projects\mem-OK`
 
 ## Provenance-цепочка
 

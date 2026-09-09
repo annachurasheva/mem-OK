@@ -21,7 +21,7 @@
 ## Система (фиксирована, смена ПК невозможна)
 - W10 кастомная: буфер обмена ненадёжен — маршрутов через буфер НЕТ.
 - PowerShell 7.6.5, Edge.
-- Локаль: C:\Projects\git-isolated-fixed\git-projects\…
+- Локаль: C:\astro-projects\…
 - Тест-профиль Edge: C:\Users\An\serv6675\Edge_test_context\
 - Под данное пространство создавать отдельно
 
