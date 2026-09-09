@@ -5,36 +5,58 @@
 
 importScripts('core/slonstore.js');
 
-// Создание контекстного меню
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({
-    id: 'slon-status',
-    title: 'Слон: статус...',
-    contexts: ['link']
+// Создание контекстного меню — идемпотентно на КАЖДОМ старте SW
+function createSlonMenu() {
+  chrome.contextMenus.remove("slon-door", () => {
+    void chrome.runtime.lastError;
+    chrome.contextMenus.create({
+      id: 'slon-door',
+      title: 'Слон: статус...',
+      contexts: ['link']
+    });
   });
+}
+
+// Создаём меню при старте SW и в onInstalled
+chrome.runtime.onInstalled.addListener(() => {
+  createSlonMenu();
 });
+
+// Вызываем сразу при загрузке скрипта (каждый старт SW)
+createSlonMenu();
 
 // Клик по пункту меню → открытие двери
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  if (info.menuItemId === 'slon-status') {
-    // Автозахват координаты из URL ссылки
+  if (info.menuItemId === 'slon-door') {
+    // Автозахват координаты из URL ссылки — используем донорскую нормализацию
     const linkUrl = info.linkUrl || info.pageUrl;
     const time = new Date().toISOString();
 
-    // Парсинг координаты из URL ok.ru
-    let coord = linkUrl;
+    // Используем ту же донорскую функцию нормализации, что и content.js
+    // Парсинг координаты из URL ok.ru (profile/group/music/video/app)
+    let coord = '';
     try {
       const urlObj = new URL(linkUrl);
       if (urlObj.hostname.includes('ok.ru')) {
-        // Для профиля: https://ok.ru/profile/123456
-        // Для группы: https://ok.ru/group/123456
         const pathParts = urlObj.pathname.split('/').filter(p => p);
-        if (pathParts[0] === 'profile' || pathParts[0] === 'group') {
-          coord = `${urlObj.origin}/${pathParts[0]}/${pathParts[1]}`;
+        if (pathParts[0] === 'profile' && pathParts[1]) {
+          // profile/NNN и его субстраницы → profile:NNN
+          coord = 'profile:' + pathParts[1];
+        } else if (pathParts[0] === 'group' && pathParts[1]) {
+          // group/NNN и его субстраницы → group:NNN
+          coord = 'group:' + pathParts[1];
+        } else if (pathParts[0] === 'music' || pathParts[0] === 'video' || pathParts[0] === 'app') {
+          // музыка, видео, приложения → донорский ключ дословно
+          // ok-_music_track_…, ok-_video_…, ok-_app_vk_app…
+          coord = 'ok-_' + pathParts.join('_');
+        } else {
+          // Остальные случаи → путь как есть
+          coord = urlObj.pathname;
         }
       }
     } catch (e) {
-      // Если не удалось распарсить, оставляем как есть
+      // Если не удалось распарсить, оставляем URL как есть
+      coord = linkUrl;
     }
 
     // Открываем дверь с автозаполненными координатой и временем

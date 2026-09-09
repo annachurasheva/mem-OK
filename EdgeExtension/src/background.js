@@ -1,4 +1,4 @@
-/* mem-OK · src/background.js · ok.ru-адаптация (TASK-0174).
+/* mem-OK · src/background.js · ok.ru-адаптация (TASK-0154).
  * ПКМ «Записка: ПЕР/СОО» на ok.ru -> картотека -> запись в базу.
  * Ядро v07g (messaging, normalize, storage) — от донора, НЕ трогать.
  * Единственный писатель: loadDb -> mutate -> saveDb. NAME_HINT, badge — сохранены.
@@ -7,6 +7,7 @@ importScripts("./core/messaging.js");
 importScripts("./core/normalize.js");
 importScripts("./core/storage.js");
 importScripts("./core/slonstore.js");
+importScripts("./slonbg.js");
 console.log("[CTX " + CTX_BUILD + "] service worker started (ok.ru)");
 
 // badge: по умолчанию серо (стекла нет)
@@ -86,7 +87,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (tab && tab.id !== undefined) {
     chrome.tabs.sendMessage(tab.id, {
       type: CTX_MSG.CAPTURED,
-      payload: { menu: info.menuItemId, id: id, type: type, link: link, page: info.pageUrl || "", db: logLine },
+      payload: { menu: info.menuItemId, id: id, type: type, link: link, page: info.pageUrl || "" },
     }).catch(() => {});
   }
 });
@@ -145,25 +146,25 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         time: msg.time
       }).catch(() => {
         // Если content script не активен, открываем door.html в новой вкладке
-        const url = chrome.runtime.getURL('ui/door.html') +
+        const url = chrome.runtime.getURL('ui/door.html') + 
           `?coord=${encodeURIComponent(msg.coord)}&time=${encodeURIComponent(msg.time)}`;
         chrome.tabs.create({ url });
       });
     } else {
-      const url = chrome.runtime.getURL('ui/door.html') +
+      const url = chrome.runtime.getURL('ui/door.html') + 
         `?coord=${encodeURIComponent(msg.coord)}&time=${encodeURIComponent(msg.time)}`;
       chrome.tabs.create({ url });
     }
     sendResponse({ success: true });
     return true;
   }
-
+  
   if (msg && msg.action === 'createTab') {
     chrome.tabs.create({ url: msg.url });
     sendResponse({ success: true });
     return true;
   }
-
+  
   // Обработчики для слона (TASK-0173)
   if (msg && msg.action === 'getStatus') {
     CTX_SLON.getStatus(msg.coord).then(status => {
@@ -171,7 +172,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     });
     return true;
   }
-
+  
   if (msg && msg.action === 'setStatus') {
     CTX_SLON.setStatus(
       msg.coord,
@@ -190,7 +191,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     });
     return true;
   }
-
+  
   if (msg && msg.action === 'deleteStatus') {
     CTX_SLON.deleteStatus(msg.coord).then(() => {
       sendResponse({ success: true });
@@ -202,20 +203,20 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     });
     return true;
   }
-
+  
   if (msg && msg.action === 'getRanks') {
     CTX_SLON.getRanks().then(ranks => {
       sendResponse({ ranks });
     });
     return true;
   }
-
+  
   if (msg && msg.action === 'getAllStatuses') {
     CTX_SLON.getAllStatuses().then(statuses => {
       sendResponse({ statuses });
     });
     return true;
   }
-
+  
   return false;
 });
