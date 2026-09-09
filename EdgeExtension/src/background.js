@@ -6,6 +6,8 @@
 importScripts("./core/messaging.js");
 importScripts("./core/normalize.js");
 importScripts("./core/storage.js");
+importScripts("./core/slonstore.js"); // TASK-0173 слон
+importScripts("./slonbg.js"); // TASK-0173 слон
 console.log("[CTX " + CTX_BUILD + "] service worker started (ok.ru)");
 
 // badge: по умолчанию серо (стекла нет)
