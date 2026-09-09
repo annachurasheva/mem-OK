@@ -3,8 +3,6 @@
  * Обработчики: contextMenus, storage onChanged, сообщения от content
  */
 
-importScripts('core/slonstore.js');
-
 // Создание контекстного меню — идемпотентно на КАЖДОМ старте SW
 function createSlonMenu() {
   chrome.contextMenus.remove("slon-door", () => {

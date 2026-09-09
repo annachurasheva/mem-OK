@@ -22,6 +22,7 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({ id: "zapiska-per", title: "Записка: ПЕР", contexts: ["link"] });
     chrome.contextMenus.create({ id: "zapiska-soo", title: "Записка: СОО", contexts: ["link"] });
+    createSlonMenu();
   });
 });
 
@@ -146,25 +147,25 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         time: msg.time
       }).catch(() => {
         // Если content script не активен, открываем door.html в новой вкладке
-        const url = chrome.runtime.getURL('ui/door.html') + 
+        const url = chrome.runtime.getURL('ui/door.html') +
           `?coord=${encodeURIComponent(msg.coord)}&time=${encodeURIComponent(msg.time)}`;
         chrome.tabs.create({ url });
       });
     } else {
-      const url = chrome.runtime.getURL('ui/door.html') + 
+      const url = chrome.runtime.getURL('ui/door.html') +
         `?coord=${encodeURIComponent(msg.coord)}&time=${encodeURIComponent(msg.time)}`;
       chrome.tabs.create({ url });
     }
     sendResponse({ success: true });
     return true;
   }
-  
+
   if (msg && msg.action === 'createTab') {
     chrome.tabs.create({ url: msg.url });
     sendResponse({ success: true });
     return true;
   }
-  
+
   // Обработчики для слона (TASK-0173)
   if (msg && msg.action === 'getStatus') {
     CTX_SLON.getStatus(msg.coord).then(status => {
@@ -172,7 +173,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     });
     return true;
   }
-  
+
   if (msg && msg.action === 'setStatus') {
     CTX_SLON.setStatus(
       msg.coord,
@@ -191,7 +192,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     });
     return true;
   }
-  
+
   if (msg && msg.action === 'deleteStatus') {
     CTX_SLON.deleteStatus(msg.coord).then(() => {
       sendResponse({ success: true });
@@ -203,20 +204,20 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     });
     return true;
   }
-  
+
   if (msg && msg.action === 'getRanks') {
     CTX_SLON.getRanks().then(ranks => {
       sendResponse({ ranks });
     });
     return true;
   }
-  
+
   if (msg && msg.action === 'getAllStatuses') {
     CTX_SLON.getAllStatuses().then(statuses => {
       sendResponse({ statuses });
     });
     return true;
   }
-  
+
   return false;
 });

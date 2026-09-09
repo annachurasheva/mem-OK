@@ -67,15 +67,29 @@
     // Заполнение ранга
     if (rankSelect) {
       rankSelect.innerHTML = '';
-      ranks.forEach(rank => {
-        const option = document.createElement('option');
-        option.value = rank.id;
-        option.textContent = `${rank.id} «${rank.name}»`;
-        if (existingStatus && parseInt(existingStatus.rank) === rank.id) {
-          option.selected = true;
-        }
-        rankSelect.appendChild(option);
-      });
+      // Добавляем пункт «— без ранга —» для пустого массива
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = '— без ранга —';
+      rankSelect.appendChild(defaultOption);
+
+      if (ranks.length === 0) {
+        // Если рангов нет, показываем сообщение
+        const noRanksOption = document.createElement('option');
+        noRanksOption.disabled = true;
+        noRanksOption.textContent = 'рангов нет — структура открытая, добавьте первый';
+        rankSelect.appendChild(noRanksOption);
+      } else {
+        ranks.forEach(rank => {
+          const option = document.createElement('option');
+          option.value = rank.id;
+          option.textContent = `${rank.id} «${rank.name}»`;
+          if (existingStatus && parseInt(existingStatus.rank) === rank.id) {
+            option.selected = true;
+          }
+          rankSelect.appendChild(option);
+        });
+      }
     }
 
     // Поле descript — СТРОГО ПУСТОЕ при новой записи (ТЗ)

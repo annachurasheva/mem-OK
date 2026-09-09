@@ -4,7 +4,7 @@
   "description": "Записка на карточку ОК: ПЕР/СОО → картотека → база (файл-первый).",
   "default_locale": "ru",
   "action": {},
-  "version": "0.1.2",
+  "version": "0.1.3",
   "permissions": ["contextMenus", "storage", "downloads", "tabs"],
   "background": {
     "service_worker": "src/background.js"
