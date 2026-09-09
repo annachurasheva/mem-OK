@@ -1,4 +1,4 @@
-/* mem-OK · src/background.js · ok.ru-адаптация (TASK-0154).
+/* mem-OK · src/background.js · ok.ru-адаптация (TASK-0174).
  * ПКМ «Записка: ПЕР/СОО» на ok.ru -> картотека -> запись в базу.
  * Ядро v07g (messaging, normalize, storage) — от донора, НЕ трогать.
  * Единственный писатель: loadDb -> mutate -> saveDb. NAME_HINT, badge — сохранены.
@@ -6,8 +6,7 @@
 importScripts("./core/messaging.js");
 importScripts("./core/normalize.js");
 importScripts("./core/storage.js");
-importScripts("./core/slonstore.js"); // TASK-0173 слон
-importScripts("./slonbg.js"); // TASK-0173 слон
+importScripts("./core/slonstore.js");
 console.log("[CTX " + CTX_BUILD + "] service worker started (ok.ru)");
 
 // badge: по умолчанию серо (стекла нет)
@@ -131,5 +130,92 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     console.log("[CTX " + CTX_BUILD + "] " + ((msg.payload && msg.payload.text) || ""));
     return false;
   }
+  return false;
+});
+
+// Обработчик для слона: открытие двери, сохранение статуса
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg && msg.action === 'openDoor') {
+    // Пересылаем команду content script или открываем door.html напрямую
+    const tabId = msg.tabId || (sender.tab ? sender.tab.id : undefined);
+    if (tabId !== undefined) {
+      chrome.tabs.sendMessage(tabId, {
+        action: 'openDoor',
+        coord: msg.coord,
+        time: msg.time
+      }).catch(() => {
+        // Если content script не активен, открываем door.html в новой вкладке
+        const url = chrome.runtime.getURL('ui/door.html') +
+          `?coord=${encodeURIComponent(msg.coord)}&time=${encodeURIComponent(msg.time)}`;
+        chrome.tabs.create({ url });
+      });
+    } else {
+      const url = chrome.runtime.getURL('ui/door.html') +
+        `?coord=${encodeURIComponent(msg.coord)}&time=${encodeURIComponent(msg.time)}`;
+      chrome.tabs.create({ url });
+    }
+    sendResponse({ success: true });
+    return true;
+  }
+
+  if (msg && msg.action === 'createTab') {
+    chrome.tabs.create({ url: msg.url });
+    sendResponse({ success: true });
+    return true;
+  }
+
+  // Обработчики для слона (TASK-0173)
+  if (msg && msg.action === 'getStatus') {
+    CTX_SLON.getStatus(msg.coord).then(status => {
+      sendResponse({ status });
+    });
+    return true;
+  }
+
+  if (msg && msg.action === 'setStatus') {
+    CTX_SLON.setStatus(
+      msg.coord,
+      msg.time,
+      msg.author,
+      msg.rank,
+      msg.descript
+    ).then(status => {
+      sendResponse({ status });
+      // Уведомляем все вкладки об изменении
+      chrome.tabs.query({}, tabs => {
+        tabs.forEach(tab => {
+          chrome.tabs.sendMessage(tab.id, { action: 'statusChanged' }).catch(() => {});
+        });
+      });
+    });
+    return true;
+  }
+
+  if (msg && msg.action === 'deleteStatus') {
+    CTX_SLON.deleteStatus(msg.coord).then(() => {
+      sendResponse({ success: true });
+      chrome.tabs.query({}, tabs => {
+        tabs.forEach(tab => {
+          chrome.tabs.sendMessage(tab.id, { action: 'statusChanged' }).catch(() => {});
+        });
+      });
+    });
+    return true;
+  }
+
+  if (msg && msg.action === 'getRanks') {
+    CTX_SLON.getRanks().then(ranks => {
+      sendResponse({ ranks });
+    });
+    return true;
+  }
+
+  if (msg && msg.action === 'getAllStatuses') {
+    CTX_SLON.getAllStatuses().then(statuses => {
+      sendResponse({ statuses });
+    });
+    return true;
+  }
+
   return false;
 });

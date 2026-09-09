@@ -1,121 +1,110 @@
-/* mem-OK · src/ui/slonmarks.js · «слон» (TASK-0173).
- * Метки слона на ok.ru: контент собирает видимые координаты, background
- * возвращает статусы, метки рисуются на своём стекле (персистентность).
- * Метка кликабельна → дверь. Самозапускается (подключается манифестом). */
-(function () {
-  "use strict";
-  if (!(location.host === "ok.ru" || location.host.endsWith(".ok.ru"))) return;
-  if (globalThis.CTX_SLON_MARKS) return; /* уже инициализирован */
+/**
+ * slonmarks.js — content script для отрисовки меток слона на ok.ru
+ * Вешается на страницы ok.ru, рисует метки рядом со ссылками на профили/группы
+ */
 
-  var glass = null;
-  var timer = 0;
-  var SLON_KEY = (typeof CTX_SLONSTORE !== "undefined") ? CTX_SLONSTORE.KEY : "ctxslon";
+(function() {
+  const MARK_CLASS = 'slon-mark';
+  const MARK_CONTAINER_CLASS = 'slon-mark-container';
 
-  /* ок-координата из ссылки (та же схема, что в content.js) */
-  function coordOf(link) {
+  // Функция получения координаты из ссылки
+  function getCoordFromLink(link) {
     try {
-      var u = new URL(link);
-      var m = u.pathname.match(/^\/(profile|group)\/(\d+)/);
-      if (m) return m[1] + ":" + m[2];
-      return u.pathname;
-    } catch (e) { return link; }
+      const url = new URL(link.href);
+      if (!url.hostname.includes('ok.ru')) return null;
+
+      const pathParts = url.pathname.split('/').filter(p => p);
+      if (pathParts[0] === 'profile' || pathParts[0] === 'group') {
+        return `${url.origin}/${pathParts[0]}/${pathParts[1]}`;
+      }
+    } catch (e) {}
+    return null;
   }
 
-  function ensureGlass() {
-    if (glass && document.body.contains(glass)) return glass;
-    glass = document.createElement("div");
-    glass.id = "ctx-slon";
-    glass.style.cssText = "position:fixed;inset:0;pointer-events:none;z-index:2147482999;overflow:hidden;";
-    document.body.appendChild(glass);
-    return glass;
-  }
+  // Создание элемента метки
+  function createMark(status, ranks) {
+    const container = document.createElement('span');
+    container.className = MARK_CONTAINER_CLASS;
 
-  function collectCoords() {
-    var coords = [];
-    var seen = {};
-    document.querySelectorAll("a[href]").forEach(function (a) {
-      if (!a.textContent || !a.textContent.trim()) return;
-      var href = a.getAttribute("href");
-      if (!href) return;
-      var abs;
-      try { abs = new URL(href, location.origin).href; } catch (e) { return; }
-      var c = coordOf(abs);
-      if (!c || seen[c]) return;
-      seen[c] = true;
-      coords.push(c);
-    });
-    return coords;
-  }
+    const mark = document.createElement('span');
+    mark.className = MARK_CLASS;
+    mark.title = status.descript || '';
 
-  function draw(statuses) {
-    var g = ensureGlass();
-    g.replaceChildren();
-    if (!statuses) return;
-    var marked = 0;
-    document.querySelectorAll("a[href]").forEach(function (a) {
-      var href = a.getAttribute("href");
-      if (!href) return;
-      var abs;
-      try { abs = new URL(href, location.origin).href; } catch (e) { return; }
-      var c = coordOf(abs);
-      var st = c ? statuses[c] : null;
-      if (!st || st.hidden) return;
-      var r = a.getBoundingClientRect();
-      if (r.width === 0) return;
-      var mk = document.createElement("span");
-      mk.textContent = st.rankName ? st.rankName : "●";
-      mk.title = "Слон: " + st.coord + (st.descript ? " — " + st.descript : "");
-      mk.style.cssText = "position:absolute;pointer-events:auto;cursor:pointer;" +
-        "left:" + (r.right + 4) + "px;top:" + (r.top - 1) + "px;" +
-        "background:" + (st.bgcolor || "#8a94a3") + ";color:" + (st.fontcolor || "#000000") + ";" +
-        "font:600 10px/1.4 'Golos Text',sans-serif;" +
-        "padding:1px 6px;border-radius:9px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3);";
-      mk.addEventListener("click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        chrome.runtime.sendMessage({ type: "SLON_OPEN_DOOR", payload: { coord: st.coord } }).catch(function () {});
+    // Находим ранг по ID
+    const rank = ranks.find(r => r.id === parseInt(status.rank));
+    if (rank) {
+      mark.style.backgroundColor = rank.color;
+      mark.textContent = rank.name;
+    } else {
+      mark.style.backgroundColor = '#ccc';
+      mark.textContent = 'Статус';
+    }
+
+    mark.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      // Открываем дверь с существующим статусом
+      chrome.runtime.sendMessage({
+        action: 'openDoor',
+        coord: status.coord,
+        time: new Date().toISOString()
       });
-      g.appendChild(mk);
-      marked++;
     });
-    console.log("[CTX слон] marked " + marked);
+
+    container.appendChild(mark);
+    return container;
   }
 
-  function rescan() {
-    var coords = collectCoords();
-    if (!coords.length) {
-      if (glass) glass.replaceChildren();
-      return;
-    }
-    chrome.runtime.sendMessage({ type: "SLON_GET_STATUSES", payload: { coords: coords } })
-      .then(function (sts) { draw(sts || {}); })
-      .catch(function () {});
+  // Отрисовка меток на странице
+  async function renderMarks() {
+    const links = document.querySelectorAll('a[href*="ok.ru/profile"], a[href*="ok.ru/group"]');
+
+    // Получаем все статусы и ранги
+    const [statusesResult, ranksResult] = await Promise.all([
+      chrome.runtime.sendMessage({ action: 'getAllStatuses' }),
+      chrome.runtime.sendMessage({ action: 'getRanks' })
+    ]);
+
+    const statuses = statusesResult?.statuses || {};
+    const ranks = ranksResult?.ranks || [];
+
+    // Очищаем старые метки
+    document.querySelectorAll(`.${MARK_CONTAINER_CLASS}`).forEach(el => el.remove());
+
+    // Добавляем метки к ссылкам
+    links.forEach(link => {
+      const coord = getCoordFromLink(link);
+      if (!coord) return;
+
+      const status = statuses[coord];
+      if (status) {
+        const mark = createMark(status, ranks);
+        link.parentNode.insertBefore(mark, link.nextSibling);
+      }
+    });
   }
 
-  /* триггеры перерисовки */
-  var obs = new MutationObserver(function () {
-    clearTimeout(timer);
-    timer = setTimeout(rescan, 600);
-  });
-  obs.observe(document.body, { childList: true, subtree: true });
-  window.addEventListener("resize", function () { clearTimeout(timer); timer = setTimeout(rescan, 300); });
-  window.addEventListener("scroll", function () { clearTimeout(timer); timer = setTimeout(rescan, 300); }, { passive: true });
-  setInterval(rescan, 2000); /* спокойный интервал */
-
-  chrome.storage.onChanged.addListener(function (changes, area) {
-    if (area === "local" && changes[SLON_KEY]) {
-      clearTimeout(timer);
-      timer = setTimeout(rescan, 120); /* дверь сохранила — метки обновятся без F5 */
+  // Слушаем изменения статуса и хранилища
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === 'statusChanged' || message.action === 'storageChanged') {
+      renderMarks();
+    }
+    if (message.action === 'openDoor') {
+      openDoor(message.coord, message.time);
     }
   });
 
-  chrome.runtime.onMessage.addListener(function (msg) {
-    if (msg && msg.type === "SLON_RESCAN") {
-      clearTimeout(timer);
-      timer = setTimeout(rescan, 120);
-    }
-  });
+  // Функция открытия двери
+  function openDoor(coord, time) {
+    const url = chrome.runtime.getURL('ui/door.html') +
+      `?coord=${encodeURIComponent(coord)}&time=${encodeURIComponent(time)}`;
+    chrome.runtime.sendMessage({ action: 'createTab', url });
+  }
 
-  globalThis.CTX_SLON_MARKS = { rescan: rescan };
-  rescan();
+  // Запуск при загрузке страницы
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderMarks);
+  } else {
+    renderMarks();
+  }
 })();

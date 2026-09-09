@@ -4,24 +4,32 @@
   "description": "Записка на карточку ОК: ПЕР/СОО → картотека → база (файл-первый).",
   "default_locale": "ru",
   "action": {},
-  "version": "0.1.1",
-  "permissions": ["contextMenus", "storage", "downloads"],
+  "version": "0.1.2",
+  "permissions": ["contextMenus", "storage", "downloads", "tabs"],
   "background": {
     "service_worker": "src/background.js"
   },
   "content_scripts": [
     {
-      "matches": ["https://ok.ru/*"],
+      "matches": ["*://*.ok.ru/*"],
       "js": [
         "src/core/messaging.js",
         "src/core/normalize.js",
         "src/core/storage.js",
+        "src/core/slonstore.js",
         "src/ui/layer.js",
+        "src/ui/slonmarks.js",
         "src/content.js"
       ],
       "css": ["src/styles.css"],
       "run_at": "document_idle"
     }
   ],
-  "host_permissions": ["https://ok.ru/*"]
+  "host_permissions": ["*://*.ok.ru/*"],
+  "web_accessible_resources": [
+    {
+      "resources": ["ui/door.html"],
+      "matches": ["*://*.ok.ru/*"]
+    }
+  ]
 }

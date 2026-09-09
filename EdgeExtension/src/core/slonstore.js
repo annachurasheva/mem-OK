@@ -1,52 +1,87 @@
-/* mem-OK · src/core/slonstore.js · «слон» (TASK-0173).
- * Хранилище рангов и статусов. Ключ "ctxslon".
- * ranks — открытая структура (управляющий добавляет/меняет; число и поля
- * не ограничены). Начальные 9 градаций перенесены ДОСЛОВНО из эталона
- * dmiandr/context (defaultranks, chrome/background.js) — LLM не добавляет.
- * Запись — ТОЛЬКО из background (единственный писатель, ядро v07g). */
-(function () {
-  "use strict";
-  var KEY = "ctxslon";
+/**
+ * slonstore.js — хранилище слона (ctxslon)
+ * Ключ: chrome.storage.local 'ctxslon'
+ * Структура: { statuses: { [coord]: { coord, time, author, rank, descript, history: [] } }, ranks: [...] }
+ */
 
-  /* Начальные ранги — дословно из dmiandr/context (TASK-0173, п.1,5). */
-  function defaultRanks() {
-    return [
-      {id: 0, rank: "Не читать", descript: "", bgcolor: "#FF0000", fontcolor: "#000000", bold: false, italic: false},
-      {id: 1, rank: "Не комментировать", descript: "", bgcolor: "#FFB6B6", fontcolor: "#000000", bold: false, italic: false},
-      {id: 2, rank: "Хам", descript: "Может сорваться на хамство без видимого повода", bgcolor: "#d3d52b", fontcolor: "#000000", bold: false, italic: false},
-      {id: 3, rank: "Обидчивый", descript: "Оскорбляется на любую нейтральную реплику, в которой ему чудится несогласие", bgcolor: "#9587ff", fontcolor: "#000000", bold: false, italic: false},
-      {id: 4, rank: "Религиозный", descript: "Тему религии не поднимать", bgcolor: "#a6a6a6", fontcolor: "#000000", bold: false, italic: false},
-      {id: 5, rank: "Упертый", descript: "Излагать мысли краткими фразами, без отступлений, не давать возможности заболтать", bgcolor: "#290cff", fontcolor: "#ffffff", bold: false, italic: false},
-      {id: 6, rank: "Не закончен разговор", descript: "Не начинать новых дискуссий пока не выполнены обещания по старым", bgcolor: "#29ffff", fontcolor: "#000000", bold: false, italic: false},
-      {id: 7, rank: "Хороший собеседник", descript: "Не значит, что он со мной согласен, значит что он умеет беседовать содержательно, без демагогии", bgcolor: "#29ff1b", fontcolor: "#000000", bold: false, italic: false},
-      {id: 8, rank: "Читать", descript: "", bgcolor: "#17760f", fontcolor: "#ffffff", bold: false, italic: false}
-    ];
+const CTX_STORAGE_KEY = 'ctxslon';
+
+// Эталонные ранги из dmiandr/context (TASK-0173)
+const DEFAULT_RANKS = [
+  { id: 0, name: 'Не читать', color: '#FF0000', desc: '' },
+  { id: 1, name: 'Не комментировать', color: '#FFB6B6', desc: '' },
+  { id: 2, name: 'Хам', color: '#FFA500', desc: 'Может сорваться на хамство без видимого повода' },
+  { id: 3, name: 'Обидчивый', color: '#FFD700', desc: 'Оскорбляется на любую нейтральную реплику' },
+  { id: 4, name: 'Религиозный', color: '#FFFF00', desc: 'Тему религии не поднимать' },
+  { id: 5, name: 'Упертый', color: '#ADFF2F', desc: 'Излагать мысли краткими фразами' },
+  { id: 6, name: 'Не закончен разговор', color: '#90EE90', desc: 'Не начинать новых дискуссий, пока не выполнены обещания по старым' },
+  { id: 7, name: 'Хороший собеседник', color: '#00FF00', desc: 'Умеет беседовать содержательно, без демагогии' },
+  { id: 8, name: 'Читать', color: '#17760f', desc: '' }
+];
+
+class SlonStore {
+  constructor() {
+    this.cache = null;
   }
 
-  function defaultSlon() {
-    return { version: 1, ranks: defaultRanks(), statuses: {} };
+  async load() {
+    const result = await chrome.storage.local.get(CTX_STORAGE_KEY);
+    this.cache = result[CTX_STORAGE_KEY] || { statuses: {}, ranks: JSON.parse(JSON.stringify(DEFAULT_RANKS)) };
+    return this.cache;
   }
 
-  function loadSlon() {
-    return chrome.storage.local.get(KEY).then(function (res) {
-      var d = res ? res[KEY] : null;
-      if (!d || !Array.isArray(d.ranks) || !d.statuses || typeof d.statuses !== "object") {
-        return defaultSlon();
-      }
-      return d;
-    });
+  async save() {
+    if (!this.cache) return;
+    await chrome.storage.local.set({ [CTX_STORAGE_KEY]: this.cache });
   }
 
-  function saveSlon(db) {
-    var o = {};
-    o[KEY] = db;
-    return chrome.storage.local.set(o);
+  async getStatus(coord) {
+    if (!this.cache) await this.load();
+    return this.cache.statuses[coord] || null;
   }
 
-  globalThis.CTX_SLONSTORE = Object.freeze({
-    KEY: KEY,
-    loadSlon: loadSlon,
-    saveSlon: saveSlon,
-    defaultSlon: defaultSlon,
-  });
-})();
+  async setStatus(coord, time, author, rank, descript = '') {
+    if (!this.cache) await this.load();
+
+    const existing = this.cache.statuses[coord];
+    const historyEntry = { coord, time, author, rank, descript };
+
+    if (existing) {
+      existing.rank = rank;
+      existing.descript = descript;
+      existing.time = time;
+      existing.author = author;
+      existing.history.push(historyEntry);
+    } else {
+      this.cache.statuses[coord] = {
+        coord,
+        time,
+        author,
+        rank,
+        descript,
+        history: [historyEntry]
+      };
+    }
+
+    await this.save();
+    return this.cache.statuses[coord];
+  }
+
+  async deleteStatus(coord) {
+    if (!this.cache) await this.load();
+    delete this.cache.statuses[coord];
+    await this.save();
+  }
+
+  async getRanks() {
+    if (!this.cache) await this.load();
+    return this.cache.ranks;
+  }
+
+  async getAllStatuses() {
+    if (!this.cache) await this.load();
+    return this.cache.statuses;
+  }
+}
+
+const CTX_SLON = new SlonStore();
