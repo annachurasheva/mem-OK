@@ -5,8 +5,17 @@
 #### 1.`EdgeExtension/src/background.js`
 
 Добавлена строка сразу после`importScripts("./core/slonstore.js");`:
-
+```javascript
+importScripts("./slonbg.js");
 ```
+
+
+
+#### 2.`EdgeExtension/src/slonbg.js`(полный апгрейд)
+
+- Меню создаётся идемпотентно на КАЖДОМ старте SW(не только в`onInstalled`): 
+
+```javascript
 function createSlonMenu() {
   chrome.contextMenus.remove("slon-door", () => {
     void chrome.runtime.lastError;
@@ -18,12 +27,6 @@ function createSlonMenu() {
   });
 }
 createSlonMenu(); // вызов при загрузке скрипта
-```
-
-#### 2.`EdgeExtension/src/slonbg.js`(полный апгрейд)
-
-- Меню создаётся идемпотентно на КАЖДОМ старте SW(не только в`onInstalled`): ```
-javascriptfunction createSlonMenu() {  chrome.contextMenus.remove("slon-door", () => {    void chrome.runtime.lastError;    chrome.contextMenus.create({      id: 'slon-door',      title: 'Слон: статус...',      contexts: ['link']    });  });}createSlonMenu(); // вызов при загрузке скрипта
 ```
 - ID меню изменён:`slon-status`→`slon-door`(единый ID)
 - Парсинг координаты переписанпо ТЗ:
