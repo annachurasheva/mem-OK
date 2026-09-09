@@ -24,7 +24,7 @@
       "port": 9224,
       "urlFilter": "https://ok.ru/*",
       "webRoot": "${workspaceFolder}/dist"
-    }
+    },
     {
       "name": "Attach Edge CDP 9225",
       "type": "msedge",
@@ -40,7 +40,6 @@
       "port": 9226,
       "urlFilter": "https://ok.ru/*",
       "webRoot": "${workspaceFolder}/dist"
-    },
-    // ... и так далее для  9227
+    },    
   ]
 }
