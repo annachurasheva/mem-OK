@@ -1,5 +1,5 @@
 # ABOUT_USER.md · v3 · 2026-08-29
-# Координата: alex-6675/mem-OK · docs/ABOUT_USER.md · v3
+# Координата: annachurasheva/mem-OK · docs/ABOUT_USER.md · v3
 
 ## Кто
 - Владелец смыслов и приоритетов; не программист; не оратор;

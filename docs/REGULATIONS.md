@@ -1,5 +1,5 @@
 # REGULATIONS.md · v3 · 2026-08-29
-# Координата: alex-6675/mem-OK · docs/REGULATIONS.md · v3
+# Координата: annachurasheva/mem-OK · docs/REGULATIONS.md · v3
 
 ## Вход для внешнего
 Вы в пространстве mem/m3/mem-2026/mem-OK/mem-ok-s-admin.
@@ -13,23 +13,23 @@ HANDOVER, SPLIT (архив).
 Бумажка = репо · путь · версия · дата. Для записей — второй тип
 координаты: SC issue #NN. При открытии диалога передаются
 координаты, не содержимое. Реестр координат:
-alex-6675/mem-OK · docs/REGULATIONS.md · v3 · 2026-08-29
-alex-6675/mem-OK · docs/STAGES.md · v3 · 2026-08-29
-alex-6675/mem-OK · docs/ABOUT_USER.md · v3 · 2026-08-29
-alex-6675/m3 · docs/ABOUT_USER.md · v2 · 2026-08-25
-alex-6675/m3 · docs/STAGES.md · v2 · 2026-08-25
-alex-6675/m3 · docs/REGULATIONS.md · v2 · 2026-08-25
-alex-6675/mem-ok-s-admin · README.md · v2 · 2026-08-29
-alex-6675/mem-ok-s-admin · INSTRUCTION.md · v1 · 2026-08-28
-alex-6675/mem-ok-s-admin · docs/PUBLISH_PROTOCOL.md · v1 · 2026-08-29
-alex-6675/mem-ok-s-admin · docs/MANUALS/GRANT.md · v1 · 2026-08-29
-alex-6675/mem-ok-s-admin · docs/MANUALS/BUILD_RUN.md · v1 · 2026-08-29
-alex-6675/mem-ok-s-admin · data/geo/settlements.md · v1 · 2026-08-29
-alex-6675/mem · docs/ROLES_OK.md · v1 · ожидает
-alex-6675/mem · docs/CONTACT_PROTOCOL.md · v1 · ожидает
-alex-6675/context-vkru · docs/HANDOVER.md · архив
-alex-6675/context-vkru · docs/SPLIT.md · v7 · архив
-alex-6675/context-vkru · docs/track_С.md · v1 · архив
+annachurasheva/mem-OK · docs/REGULATIONS.md · v3 · 2026-08-29
+annachurasheva/mem-OK · docs/STAGES.md · v3 · 2026-08-29
+annachurasheva/mem-OK · docs/ABOUT_USER.md · v3 · 2026-08-29
+annachurasheva/m3 · docs/ABOUT_USER.md · v2 · 2026-08-25
+annachurasheva/m3 · docs/STAGES.md · v2 · 2026-08-25
+annachurasheva/m3 · docs/REGULATIONS.md · v2 · 2026-08-25
+annachurasheva/mem-ok-s-admin · README.md · v2 · 2026-08-29
+annachurasheva/mem-ok-s-admin · INSTRUCTION.md · v1 · 2026-08-28
+annachurasheva/mem-ok-s-admin · docs/PUBLISH_PROTOCOL.md · v1 · 2026-08-29
+annachurasheva/mem-ok-s-admin · docs/MANUALS/GRANT.md · v1 · 2026-08-29
+annachurasheva/mem-ok-s-admin · docs/MANUALS/BUILD_RUN.md · v1 · 2026-08-29
+annachurasheva/mem-ok-s-admin · data/geo/settlements.md · v1 · 2026-08-29
+annachurasheva/mem · docs/ROLES_OK.md · v1 · ожидает
+annachurasheva/mem · docs/CONTACT_PROTOCOL.md · v1 · ожидает
+annachurasheva/context-vkru · docs/HANDOVER.md · архив
+annachurasheva/context-vkru · docs/SPLIT.md · v7 · архив
+annachurasheva/context-vkru · docs/track_С.md · v1 · архив
 SC: sourcecraft.dev/ermek-toptaev-1/context-vkru/issues/27 ·
     спецификация дашборда mem-OK
 

@@ -1,5 +1,5 @@
 # CORE.md · v1 · 2026-08-29
-# Координата: alex-6675/mem-OK · docs/CORE.md · v1
+# Координата: annachurasheva/mem-OK · docs/CORE.md · v1
 # Позывной: VENTURIS
 
 == CONCEPTUAL CORE ==

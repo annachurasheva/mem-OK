@@ -1,5 +1,5 @@
 # mem-OK · v2 · 2026-08-29
-# Координата: alex-6675/mem-OK · README.md · v2
+# Координата: annachurasheva/mem-OK · README.md · v2
 
 **RC-OK — инструмент, которого не было в семье RC.**
 

@@ -30,11 +30,11 @@ import {
 } from "./data/v03f";
 
 const DOC_ARCH =
-  "https://github.com/alex-6675/context-vkru/blob/main/docs/architecture.md";
+  "https://github.com/annachurasheva/context-vkru/blob/main/docs/architecture.md";
 const DOC_REG =
-  "https://github.com/alex-6675/context-vkru/blob/main/docs/%D0%A0%D0%95%D0%93%D0%9B%D0%90%D0%9C%D0%95%D0%9D%D0%A2_%D0%A0%D0%90%D0%91%D0%9E%D0%A2_v2_0.md";
+  "https://github.com/annachurasheva/context-vkru/blob/main/docs/%D0%A0%D0%95%D0%93%D0%9B%D0%90%D0%9C%D0%95%D0%9D%D0%A2_%D0%A0%D0%90%D0%91%D0%9E%D0%A2_v2_0.md";
 const DOC_M03R =
-  "https://github.com/alex-6675/context-vkru/blob/main-qwen_v_03/reports/v_03/M03r.md";
+  "https://github.com/annachurasheva/context-vkru/blob/main-qwen_v_03/reports/v_03/M03r.md";
 
 const VERDICT_KEY = "ctxvkru-verdict-v03r";
 
