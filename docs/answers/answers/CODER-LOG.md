@@ -1,9 +1,25 @@
 ---
-## TASK-0174 · 09.09.2026
-**Коммит:** d8f91cb
-**Суть:** Созданы файлы слона (slonstore, slonmarks, slondoor, door.html), добавлен автозахват координаты, поле descript пустое.
 
-## TASK-0175 · 09.09.2026
-**Коммит:** d8f91cb
-**Суть:**  ~ EdgeExtension/src/background.js (+1 строка: importScripts slonbg.js)
-~ EdgeExtension/src/slonbg.js (меню на каждом старте SW, ID slon-door, новый парсер координат)
+## TASK‑0174 · 09.09.2026
+
+**Коммит:** `d8f91cb`
+
+**Суть задачи:**
+- Созданы файлы модуля «Слон»: `slonstore`, `slonmarks`, `slondoor`, `door.html`.
+- Реализована функция автозахвата координат.
+- Поле `descript` оставлено незаполненным.
+
+---
+
+## TASK‑0175 · 09.09.2026
+
+**Коммит:** `052acb8`
+
+**Суть задачи:**
+
+```diff
+~ EdgeExtension/src/background.js: добавлена 1 строка — импорт скрипта (`importScripts('slonbg.js')`).
+~ EdgeExtension/src/slonbg.js: 
+  - реализовано отображение меню при каждом старте Service Worker;
+  - присвоен идентификатор `slon-door`;
+  - внедрён новый парсер координат.
